@@ -10,9 +10,11 @@ class ImageController extends Controller
     {
         $request->validate([
             'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'threshold' => 'required|integer|min:0|max:255',  
         ]);
 
         $image = $request->file('image');
+        $threshold = $request->input('threshold', 128);
 
         $img = imagecreatefromjpeg($image);
 
@@ -28,7 +30,7 @@ class ImageController extends Controller
 
                 $gray = ($r * 0.3 + $g * 0.59 + $b * 0.11);
 
-                if ($gray < 128) {
+                if ($gray < $threshold) {
                     $color = imagecolorallocate($img, 0, 0, 0);
                 } else {
                     $color = imagecolorallocate($img, 255, 255, 255);
@@ -39,10 +41,7 @@ class ImageController extends Controller
         }
 
         header('Content-Type: image/jpeg');
-
         imagejpeg($img);
-
         imagedestroy($img);
-
     }
 }
